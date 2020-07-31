@@ -1,6 +1,8 @@
 import socket
 from ultraSonic import *
 from calculation import *
+import array
+import RPi.GPIO as GPIO
 
 class Receiver:
 	
@@ -13,10 +15,18 @@ class Receiver:
 	
 	calculator=Calculator();
 	
+	dataNo=10;
+	
 	s='';
+	
+	warningLed=19;
+	
 	
 	def __init__(self):
 		self.s=self.setupServer();
+		GPIO.setmode(GPIO.BCM);
+		GPIO.setwarnings(False);
+		GPIO.setup(self.warningLed,GPIO.OUT);
 		
 	def setupServer(self):
 	    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);
@@ -38,10 +48,36 @@ class Receiver:
 	    return conn;
 	    
 	def processData(self,data,conn):
-	     lower=self.sensor.readData();
+	     #lower=self.sensor.readData();
+	     larray=0;
+	     checkArray=array.array('d',[]);
+	     i=0;
+	     #print("s1");
+	     while i<self.dataNo:
+			 sData=self.sensor.readData();
+			 #print("s2");
+			 checkArray.insert(i,sData);
+			 if(i>=2):
+				 if(abs(checkArray[i-2]-checkArray[i-1])>1.5 or abs(checkArray[i-1]-checkArray[i])>1.5 or
+				 abs(checkArray[i]-checkArray[i-2])>1.5):
+					 larray-=checkArray[i-1];
+					 larray-=checkArray[i-2];
+					 i=i-2;
+					 #print("s3");
+					 time.sleep(0.1);
+					 continue;
+			 larray+=checkArray[i];
+			 #print("s4");
+			 time.sleep(0.3);
+			 i=i+1;
+	     lower=larray/self.dataNo;
 	     print("Upper:"+data+"cm");
-	     time.sleep(2);
+	     print("Lower:"+str(lower)+"cm");
 	     upper=data;
+	     if(lower>70 or lower<=19):
+			 GPIO.output(self.warningLed,True);
+	     else:
+			 GPIO.output(self.warningLed,False);
 	     self.calculator.calculate(lower,upper,conn,self.sensor);
 	
 	def dataTransfer(self,conn):

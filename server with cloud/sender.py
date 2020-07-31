@@ -1,18 +1,19 @@
 from dbtest import *
 import urllib
 import urllib2
+import datetime
 
 count=0;
-id=1;
+id=5;
 db=Database();
 while(count!=10):
 	query="""SELECT * FROM consumption WHERE sent='False'""";
 	num,data=db.query(query);
 	if(num>0):
 		for d in data:
-					url="http://localhost/test.php";
+					url="http://192.168.1.101/kec-project/public/interface";
 					json={
-                                                        'id':id,
+							'id':id,
 							'date':d['date'],
 							'volume':d['volume']
 					}
@@ -49,4 +50,27 @@ while(count!=10):
 						print("Error in server side");
 						count=count+1;
 	else:
-		break;
+		d=datetime.datetime.now();
+		if(d.month<10):
+			mm='0'+str(d.month);
+		else:
+			mm=str(d.month);
+		#if(d.day<10):
+			#dd='0'+str(d.day);
+		#else:
+			#dd=str(d.day);
+		if(d.minute<10):
+			dd='0'+str(d.minute);
+		else:
+			dd=str(d.minute);
+		cdate=str(d.year)+mm+dd;
+		query="""SELECT * FROM consumption WHERE date=%s"""%(cdate);
+		num,data=db.query(query);
+		if(num==0):
+			query="""INSERT INTO consumption(date,volume,sent) VALUES(%s,'0','False')"""%(cdate);
+			db.insert(query);
+			count=0;
+			continue;
+		else:
+			break;
+

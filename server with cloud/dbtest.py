@@ -32,7 +32,7 @@ class Database:
 		self.connection.close()
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
 
     db = Database()
 
@@ -63,3 +63,4 @@ if __name__ == "__main__":
         print "date= " + str(d['date'])
         print "volume= " + str(d['volume'])
         print "sent= " + str(d['sent'])
+'''

@@ -18,7 +18,7 @@ class ultraSound:
 		time.sleep(0.00001)                      
 		GPIO.output(self.TRIG, False)                 
 		pulse_start=0;
-		pulse_stop=0;
+		pulse_end=0;
 		while GPIO.input(self.ECHO)==0:               
 			pulse_start = time.time()              
 		while GPIO.input(self.ECHO)==1:               
@@ -27,9 +27,9 @@ class ultraSound:
 		pulse_duration = pulse_end - pulse_start 
 		distance = pulse_duration * 17150        
 		distance = round(distance, 2)            
-		print "Lower:",distance,"cm" 
+		#print "Lower:",distance,"cm" 
+		time.sleep(0.2) 
 		return distance;
-		#time.sleep(5) 
 
 
 #sensor=ultraSound();
